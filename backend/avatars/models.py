@@ -10,6 +10,19 @@ class Avatar(models.Model):
         ('other', 'Other'),
     ]
     
+    LANGUAGE_CHOICES = [
+        ('en', 'English'),
+        ('hi', 'Hindi'),
+        ('ta', 'Tamil'),
+        ('te', 'Telugu'),
+        ('mr', 'Marathi'),
+        ('bn', 'Bengali'),
+        ('gu', 'Gujarati'),
+        ('kn', 'Kannada'),
+        ('ml', 'Malayalam'),
+        ('pa', 'Punjabi'),
+    ]
+    
     STATUS_CHOICES = [
         ('creating', 'Creating'),
         ('ready', 'Ready'),
@@ -22,6 +35,7 @@ class Avatar(models.Model):
     description = models.TextField(blank=True)
     profile_image = models.ImageField(upload_to='avatars/profiles/', blank=True, null=True)
     gender = models.CharField(max_length=10, choices=GENDER_CHOICES, default='other')
+    language = models.CharField(max_length=10, choices=LANGUAGE_CHOICES, default='en')  
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='creating')
     personality_traits = models.JSONField(default=dict, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)

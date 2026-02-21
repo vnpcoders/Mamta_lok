@@ -1,5 +1,6 @@
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
+from .tts_service import TTSService
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from .models import Conversation, Message
@@ -37,10 +38,23 @@ class ConversationViewSet(viewsets.ModelViewSet):
 
         # Create avatar message
         avatar_message = Message.objects.create(
-            conversation=conversation,
-            sender_type='avatar',
-            text_content=ai_response_text
+        conversation=conversation,
+        sender_type='avatar',
+        text_content=ai_response_text
         )
+
+        # Generate audio
+        try:
+            audio_path = TTSService.generate_speech(
+               text=ai_response_text,
+               language=conversation.avatar.language,
+               avatar_id=conversation.avatar.id
+            )
+            if audio_path:
+                avatar_message.audio_response = audio_path
+                avatar_message.save()
+        except Exception as e:
+            print(f"TTS failed: {e}")
 
         return Response({
             'user_message': MessageSerializer(user_message).data,
@@ -48,36 +62,54 @@ class ConversationViewSet(viewsets.ModelViewSet):
         })
 
     def generate_ai_response(self, user_text, avatar):
-        """
-        Generate AI response using Gemini
-        """
+        """Generate AI response using Gemini"""
         gemini_key = os.environ.get('GEMINI_API_KEY', '')
         
         if not gemini_key:
-            return f"Hello! I'm {avatar.name}. I'd love to chat, but the AI key is not configured."
+            return f"Hello! I'm {avatar.name}. AI key is not configured."
 
         try:
             import google.generativeai as genai
             genai.configure(api_key=gemini_key)
-            model = genai.GenerativeModel('gemini-pro')
             
-            # Build prompt with avatar personality
+            # Try multiple model names
+            model_names = [
+                'gemini-1.5-flash',
+                'gemini-1.5-pro-latest',
+                'gemini-pro',
+                'models/gemini-1.5-flash',
+                'models/gemini-pro'
+            ]
+            
+            model = None
+            for model_name in model_names:
+                try:
+                    model = genai.GenerativeModel(model_name)
+                    # Quick test
+                    test = model.generate_content("Hi")
+                    print(f"Using model: {model_name}")
+                    break
+                except:
+                    continue
+            
+            if not model:
+                return f"Hi! I'm {avatar.name}. Technical issue right now."
+            
+            # Build prompt
             prompt = f"""You are {avatar.name}, a {avatar.relationship or 'person'}.
 {avatar.description or ''}
 
-Personality traits: {avatar.personality_traits}
+Respond naturally to: "{user_text}"
 
-Respond to this message as {avatar.name} would:
-"{user_text}"
-
-Keep response natural, warm, and in character."""
+Keep it warm. Reply in same language."""
 
             response = model.generate_content(prompt)
             return response.text
 
         except Exception as e:
-            return f"Hi! I'm {avatar.name}. I'm having trouble thinking right now, but I'm here with you."
-
+            print(f"Gemini Error: {e}")
+            return f"Hi! I'm {avatar.name}. I'm having a moment, but I'm listening."
+        
     @action(detail=True, methods=['get'])
     def messages(self, request, pk=None):
         conversation = self.get_object()

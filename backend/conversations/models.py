@@ -29,6 +29,7 @@ class Message(models.Model):
     sender_type = models.CharField(max_length=10, choices=SENDER_CHOICES)
     text_content = models.TextField()
     audio_file = models.FileField(upload_to='conversations/audio/', blank=True, null=True)
+    audio_response = models.FileField(upload_to='audio/responses/', blank=True, null=True)  # NEW FIELD
     video_file = models.FileField(upload_to='conversations/video/', blank=True, null=True)
     emotion_detected = models.CharField(max_length=50, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)

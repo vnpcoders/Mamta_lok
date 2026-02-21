@@ -10,19 +10,40 @@ export default function Dashboard() {
     const [avatars, setAvatars] = useState([]);
     const [loading, setLoading] = useState(true);
     const [menu, setMenu] = useState(false);
+    const [error, setError] = useState('');
 
     useEffect(() => {
+        let mounted = true;
         (async () => {
             try {
                 const token = localStorage.getItem('access_token');
-                const res = await axios.get(`${API_URL}/avatars/`, { headers: { Authorization: `Bearer ${token}` } });
-                setAvatars(res.data);
-            } catch (e) { if (e.response?.status === 401) logout(); }
-            finally { setLoading(false); }
+                if (!token) {
+                    navigate('/login');
+                    return;
+                }
+                const res = await axios.get(`${API_URL}/avatars/`, {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+                if (mounted) setAvatars(res.data);
+            } catch (e) {
+                console.error('Error:', e);
+                if (e.response?.status === 401) {
+                    localStorage.clear();
+                    navigate('/login');
+                } else {
+                    if (mounted) setError('Failed to load avatars');
+                }
+            } finally {
+                if (mounted) setLoading(false);
+            }
         })();
-    }, []);
+        return () => { mounted = false; };
+    }, [navigate]);
 
-    const logout = () => { localStorage.clear(); navigate('/login'); };
+    const logout = () => {
+        localStorage.clear();
+        navigate('/login');
+    };
 
     return (
         <div style={s.page}>
@@ -45,6 +66,12 @@ export default function Dashboard() {
             </div>
 
             <div style={s.content}>
+                {error && (
+                    <div style={{ background: '#fef2f2', border: '1px solid #fecaca', borderRadius: '12px', padding: '16px', marginBottom: '20px', color: '#dc2626' }}>
+                        ⚠️ {error}
+                    </div>
+                )}
+
                 {loading ? (
                     <div style={{ textAlign: 'center', padding: '80px 0' }}>
                         <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: '#6d28d9', margin: '0 auto 16px', animation: 'pulse 1s infinite' }} />

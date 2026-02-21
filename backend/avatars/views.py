@@ -38,18 +38,12 @@ class AvatarViewSet(viewsets.ModelViewSet):
     @action(detail=True, methods=['post'])
     def finalize(self, request, pk=None):
         avatar = self.get_object()
-        
-        # Check if avatar has required data
-        if not avatar.images.exists():
-            return Response(
-                {'error': 'Please upload at least one image'},
-                status=status.HTTP_400_BAD_REQUEST
-            )
-        
+    
+    # Set status to ready (image is optional now)
         avatar.status = 'ready'
         avatar.save()
-        
+    
         return Response({
-            'message': 'Avatar is ready!',
-            'avatar': AvatarSerializer(avatar).data
-        })
+        'message': 'Avatar is ready!',
+        'avatar': AvatarSerializer(avatar).data
+    })

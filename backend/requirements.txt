@@ -42,3 +42,7 @@ redis==5.0.1
 gunicorn==21.2.0
 whitenoise==6.6.0
 drf-yasg==1.21.7
+
+gTTS==2.5.0
+pyttsx3==2.98
+langdetect==1.0.9
