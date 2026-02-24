@@ -6,7 +6,7 @@ const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000/api';
 
 export default function AvatarCreate() {
     const navigate = useNavigate();
-    const [form, setForm] = useState({ name: '', relationship: '', description: '', gender: 'other' });
+    const [form, setForm] = useState({ name: '', relationship: '', description: '', gender: 'other', language: 'en' });
     const [img, setImg] = useState(null);
     const [preview, setPreview] = useState(null);
     const [error, setError] = useState('');
@@ -73,6 +73,27 @@ export default function AvatarCreate() {
                                         <option value="male">Male</option><option value="female">Female</option><option value="other">Other</option>
                                     </select>
                                 </div>
+
+                                {/* Language Selector - NEW */}
+                                <div style={s.field}>
+                                    <label style={s.label}>Preferred Language 🌍</label>
+                                    <select style={{ ...inp, appearance: 'auto' }} name="language" value={form.language} onChange={e => setForm({ ...form, language: e.target.value })}>
+                                        <option value="en">English</option>
+                                        <option value="hi">Hindi (हिंदी)</option>
+                                        <option value="ta">Tamil (தமிழ்)</option>
+                                        <option value="te">Telugu (తెలుగు)</option>
+                                        <option value="mr">Marathi (मराठी)</option>
+                                        <option value="bn">Bengali (বাংলা)</option>
+                                        <option value="gu">Gujarati (ગુજરાતી)</option>
+                                        <option value="kn">Kannada (ಕನ್ನಡ)</option>
+                                        <option value="ml">Malayalam (മലയാളം)</option>
+                                        <option value="pa">Punjabi (ਪੰਜਾਬੀ)</option>
+                                    </select>
+                                    <p style={{ fontSize: '12px', color: '#64748b', marginTop: '4px', margin: '4px 0 0' }}>
+                                        Avatar will respond in this language
+                                    </p>
+                                </div>
+
                                 <div style={s.field}><label style={s.label}>Personality Description</label>
                                     <textarea style={{ ...inp, minHeight: '90px', resize: 'vertical' }} name="description" value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} placeholder="How they spoke, their interests, favorite sayings..." onFocus={focus} onBlur={blur} />
                                 </div>
@@ -97,6 +118,7 @@ export default function AvatarCreate() {
                                     <p style={{ fontSize: '13px', fontWeight: 600, color: '#4c1d95', margin: '0 0 8px', textTransform: 'uppercase', letterSpacing: '.5px' }}>Summary</p>
                                     <p style={{ margin: '4px 0', fontSize: '14px', color: '#374151' }}><strong>Name:</strong> {form.name}</p>
                                     {form.relationship && <p style={{ margin: '4px 0', fontSize: '14px', color: '#374151' }}><strong>Relationship:</strong> {form.relationship}</p>}
+                                    {form.language && <p style={{ margin: '4px 0', fontSize: '14px', color: '#374151' }}><strong>Language:</strong> {form.language === 'en' ? 'English' : form.language === 'hi' ? 'Hindi' : form.language}</p>}
                                 </div>
                                 <div style={{ display: 'flex', gap: '12px' }}>
                                     <button type="button" style={s.backBtn2} onClick={() => setStep(1)}>← Back</button>

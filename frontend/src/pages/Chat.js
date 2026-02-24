@@ -50,6 +50,12 @@ export default function Chat() {
     const time = (ts) => ts ? new Date(ts).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '';
     const initial = (n) => n?.charAt(0).toUpperCase() || '?';
 
+    // Language helper
+    const getLanguageName = (code) => {
+        const langs = { 'en': 'English', 'hi': 'Hindi', 'ta': 'Tamil', 'te': 'Telugu', 'mr': 'Marathi', 'bn': 'Bengali', 'gu': 'Gujarati', 'kn': 'Kannada', 'ml': 'Malayalam', 'pa': 'Punjabi' };
+        return langs[code] || 'English';
+    };
+
     if (!avatar) return <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f8f7ff', fontFamily: "'DM Sans',sans-serif" }}><p style={{ color: '#6d28d9' }}>Loading...</p></div>;
 
     return (
@@ -65,7 +71,11 @@ export default function Chat() {
                     </div>
                     <div>
                         <h2 style={s.avaName}>{avatar.name}</h2>
-                        <p style={s.avaRel}>{avatar.relationship || 'Avatar'} • <span style={{ color: '#10b981' }}>Online</span></p>
+                        <p style={s.avaRel}>
+                            {avatar.relationship || 'Avatar'} •
+                            <span style={{ color: '#10b981' }}> Online</span> •
+                            <span style={{ color: '#6d28d9' }}> {getLanguageName(avatar.language)}</span>
+                        </p>
                     </div>
                 </div>
             </div>
@@ -96,6 +106,16 @@ export default function Chat() {
                         )}
                         <div style={m.sender_type === 'user' ? s.userBubble : s.avaBubble}>
                             <p style={{ margin: '0 0 4px', fontSize: '15px', lineHeight: 1.5, wordBreak: 'break-word' }}>{m.text_content}</p>
+
+                            {/* Audio Player - NEW */}
+                            {m.audio_response && (
+                                <div style={s.audioPlayer}>
+                                    <audio controls style={s.audioControl} src={`http://localhost:8000/media/${m.audio_response}`}>
+                                        Your browser does not support audio.
+                                    </audio>
+                                </div>
+                            )}
+
                             <span style={{ fontSize: '11px', opacity: 0.6, display: 'block' }}>{time(m.created_at)}</span>
                         </div>
                     </div>
@@ -139,6 +159,8 @@ const s = {
     msgAva: { width: '30px', height: '30px', borderRadius: '50%', background: 'linear-gradient(135deg,#4c1d95,#6d28d9)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, overflow: 'hidden' },
     userBubble: { background: 'linear-gradient(135deg,#4c1d95,#6d28d9)', borderRadius: '18px 18px 4px 18px', padding: '10px 14px', maxWidth: '70%', color: 'white' },
     avaBubble: { background: 'white', borderRadius: '18px 18px 18px 4px', padding: '10px 14px', maxWidth: '70%', boxShadow: '0 2px 8px rgba(109,40,217,.08)', color: '#1e1b4b' },
+    audioPlayer: { marginTop: '8px', marginBottom: '4px' },
+    audioControl: { width: '100%', maxWidth: '280px', height: '32px', outline: 'none', borderRadius: '8px' },
     inputArea: { background: 'white', borderTop: '1px solid #ede9fe', padding: '12px 16px', boxShadow: '0 -1px 20px rgba(109,40,217,.06)' },
     input: { flex: 1, padding: '12px 16px', border: '2px solid #ede9fe', borderRadius: '12px', fontSize: '15px', outline: 'none', fontFamily: "'DM Sans',sans-serif", resize: 'none', lineHeight: 1.5, maxHeight: '120px', transition: 'border-color .2s', width: '100%' },
     sendBtn: { width: '44px', height: '44px', borderRadius: '12px', background: 'linear-gradient(135deg,#4c1d95,#6d28d9)', color: 'white', border: 'none', fontSize: '20px', cursor: 'pointer', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' },

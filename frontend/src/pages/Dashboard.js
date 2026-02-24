@@ -12,6 +12,12 @@ export default function Dashboard() {
     const [menu, setMenu] = useState(false);
     const [error, setError] = useState('');
 
+    // Language helper
+    const getLanguageName = (code) => {
+        const langs = { 'en': 'English', 'hi': 'Hindi', 'ta': 'Tamil', 'te': 'Telugu', 'mr': 'Marathi', 'bn': 'Bengali', 'gu': 'Gujarati', 'kn': 'Kannada', 'ml': 'Malayalam', 'pa': 'Punjabi' };
+        return langs[code] || 'English';
+    };
+
     useEffect(() => {
         let mounted = true;
         (async () => {
@@ -95,6 +101,14 @@ export default function Dashboard() {
                                 <div style={s.cardBody}>
                                     <h3 style={s.cardName}>{av.name}</h3>
                                     <p style={s.cardRel}>{av.relationship || 'Avatar'}</p>
+
+                                    {/* Language Badge - NEW */}
+                                    {av.language && (
+                                        <div style={s.langBadge}>
+                                            🌍 {getLanguageName(av.language)}
+                                        </div>
+                                    )}
+
                                     {av.description && <p style={s.cardDesc}>{av.description.slice(0, 80)}{av.description.length > 80 ? '...' : ''}</p>}
                                     <button style={av.status === 'ready' ? s.chatBtn : s.chatBtnOff}
                                         onClick={() => av.status === 'ready' && navigate(`/chat/${av.id}`)}
@@ -139,6 +153,7 @@ const s = {
     cardBody: { padding: '20px' },
     cardName: { fontFamily: "'Playfair Display',serif", fontSize: '22px', color: '#1e1b4b', margin: '0 0 4px' },
     cardRel: { color: '#6d28d9', fontSize: '13px', fontWeight: 500, margin: '0 0 8px', textTransform: 'uppercase', letterSpacing: '.5px' },
+    langBadge: { display: 'inline-block', background: '#f0fdf4', color: '#16a34a', padding: '4px 10px', borderRadius: '12px', fontSize: '11px', fontWeight: 500, marginBottom: '8px' },
     cardDesc: { color: '#64748b', fontSize: '13px', margin: '0 0 16px', lineHeight: 1.5, fontWeight: 300 },
     chatBtn: { width: '100%', padding: '12px', background: 'linear-gradient(135deg,#4c1d95,#6d28d9)', color: 'white', border: 'none', borderRadius: '10px', fontSize: '14px', cursor: 'pointer', fontFamily: "'DM Sans',sans-serif" },
     chatBtnOff: { width: '100%', padding: '12px', background: '#f1f5f9', color: '#94a3b8', border: 'none', borderRadius: '10px', fontSize: '14px', cursor: 'not-allowed', fontFamily: "'DM Sans',sans-serif" },
